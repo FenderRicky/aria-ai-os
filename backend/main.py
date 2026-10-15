@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import ollama
+from groq import Groq
+from dotenv import load_dotenv
+import os
+
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env.local"))
 
 app = FastAPI()
 
-# Allow frontend to connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,16 +16,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
+
 @app.post("/chat")
 async def chat(message: str):
-    """Send message to Ollama, get response"""
+    """Send message to Groq, get response"""
     try:
-        response = ollama.generate(
-            model="mistral",
-            prompt=message,
-            stream=False
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": message}],
+            model="openai/gpt-oss-20b",
         )
-        return {"response": response["response"]}
+        return {"response": chat_completion.choices[0].message.content}
     except Exception as e:
         return {"error": str(e)}
 

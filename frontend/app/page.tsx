@@ -16,7 +16,7 @@ export default function Home() {
     setHistory([...history, { role: 'user', content: userMessage }])
 
     try {
-      const res = await fetch(`http://localhost:8000/chat?message=${encodeURIComponent(userMessage)}`, {
+      const res = await fetch(`https://supreme-rotary-phone-jj9g64vrg7x92prxg-8000.app.github.dev/chat?message=${encodeURIComponent(userMessage)}`, {
         method: 'POST'
       })
       const data = await res.json()
